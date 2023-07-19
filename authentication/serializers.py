@@ -1,6 +1,8 @@
 from rest_framework import serializers # type: ignore
 from django.contrib.auth import get_user_model # type: ignore
+from datetime import datetime
 from typing import Dict, Any
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
@@ -12,7 +14,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "password": {"write_only": True}
         }
         
-    def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
+    def validate(self, attrs: Dict[str, str]) -> Dict[str, Any]:
         
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError("The two passwords do not match !")
@@ -30,5 +32,40 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # If not, then create the user with the email and the rest of the validated data
         new_account = get_user_model().objects.create_user(**validated_data)
         return new_account
+    
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    
+    def validate(self, attrs: Dict[str, str]) -> Dict[str, Any]:
+        data = super().validate(attrs)
+        if not self.user.is_verified and self.user.is_active:
+            raise serializers.ValidationError(
+                                                {
+                                                 'detail': 'User must be verified to perform any action'
+                                                }
+                                             )
+        now = datetime.now()
+        refresh: str = self.get_token(self.user)
+        data["access_token_lifetime"] = refresh.access_token.lifetime
+        access_token_expiry = now + refresh.access_token.lifetime
+        data["access_token_expiry"] = access_token_expiry.strftime("%Y-%m-%d %H:%M:%S")
+        
+        data.update(
+            {
+                "id": self.user.id,
+                "email": self.user.email,
+                "first_name": self.user.first_name,
+                "last_name": self.user.last_name,
+                "gender": self.user.gender,
+                "is_vendor": self.user.is_vendor,
+                "is_superuser": self.user.is_superuser,
+                "is_staff": self.user.is_staff,
+            }
+        )
+        return data 
+    
+
+
+
     
     
