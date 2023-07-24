@@ -20,11 +20,12 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+
 schema_view = get_schema_view(
     openapi.Info(
-        title="Hostel Complaint Management System",
+        title="E-marketplace API",
         default_version="v1",
-        description="A hostel complaint management system for event crawford university final year project",
+        description="An online marketplace project",
         terms_of_service="www.kerryonyeogoportfolio.netlify.app",
         contact=openapi.Contact(email="kerryonyeogo@gmail.com", name="Onyeogo Kerry"),
         license=openapi.License(name="Onyeogo Kerry")

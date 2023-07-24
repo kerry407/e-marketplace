@@ -38,12 +38,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Third-party apps
     'rest_framework',
     'corsheaders',
     'django_filters',
     'drf_yasg',
-    'utils',
+    'django_rest_passwordreset',
+    'phonenumber_field',
+    'django_countries',
+    
+    # Local apps
     'authentication',
+    'utils',
 ]
 
 MIDDLEWARE = [
@@ -194,3 +201,15 @@ EMAIL_BACKEND = 'django_ses.SESBackend'
 AWS_SES_REGION_NAME = 'us-east-2'
 AWS_SES_REGION_ENDPOINT = 'email.us-east-2.amazonaws.com'
 DEFAULT_FROM_MAIL = config('DEFAULT_FROM_MAIL')
+
+
+# PasswordReset Settings
+
+# Time in hours about how long the token is active
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 6
+
+# Return 200 even if the user doesn't exist in the database
+DJANGO_REST_PASSWORDRESET_NO_INFORMATION_LEAKAGE = True
+
+# Allow password reset for a user that does not have a usable password
+DJANGO_REST_MULTITOKENAUTH_REQUIRE_USABLE_PASSWORD = True
