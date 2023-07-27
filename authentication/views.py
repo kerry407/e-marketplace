@@ -61,7 +61,7 @@ class ChangePasswordConfirmView(generics.CreateAPIView):
         API endpoint for confirming change of user passwords
     '''
     queryset = get_user_model().objects.all()
-    serializer_class = ChangePasswordSerializer
+    serializer_class = ChangePasswordSerializer                                                                                                                                                     
     renderer_classes = [CustomRenderer]
     
 

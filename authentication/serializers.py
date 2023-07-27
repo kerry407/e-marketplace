@@ -3,11 +3,9 @@ from django.contrib.auth import get_user_model # type: ignore
 from datetime import datetime
 from typing import Dict, Any
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.conf import settings 
-from django.core.exceptions import ValidationError
-from rest_framework import exceptions
-from django.contrib.auth.password_validation import validate_password, get_password_validators
 from .models import Vendor
+from django_rest_passwordreset.serializers import EmailSerializer
+from rest_framework.validators import ValidationError 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
@@ -69,10 +67,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         )
         return data 
     
+    
 class ChangePasswordSerializer(serializers.Serializer):
     token = serializers.CharField(required=True)
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+    
+    
     
 class VendorSerializer(serializers.ModelSerializer):
     

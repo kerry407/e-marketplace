@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'phonenumber_field',
     'django_countries',
+    'pytest_cov',
     
     # Local apps
     'authentication',
@@ -198,6 +199,7 @@ AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 
 # EMAIL CONFIGURATIONS
 EMAIL_BACKEND = 'django_ses.SESBackend'
+
 AWS_SES_REGION_NAME = 'us-east-2'
 AWS_SES_REGION_ENDPOINT = 'email.us-east-2.amazonaws.com'
 DEFAULT_FROM_MAIL = config('DEFAULT_FROM_MAIL')
