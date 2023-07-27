@@ -36,8 +36,10 @@ class EmailThread(threading.Thread):
         threading.Thread.__init__(self)
         
     def run(self) -> None:
-        self.email.send()  
-        
+        try:
+            self.email.send()  
+        except Exception:
+            pass 
 
 class UserRelatedHelper:
     

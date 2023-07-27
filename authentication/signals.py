@@ -57,7 +57,6 @@ def forgot_password_reset_token_created(sender, instance, reset_password_token, 
                     instance.request.build_absolute_uri(reverse('authentication:forgot-password-confirm')),
                     reset_password_token.key)
         }
-    print(context['forgot_password_url'])
     # render email html
     message = render_to_string('authentication/user_forgot_password.html', context)
     helper = UserRelatedHelper(reset_password_token.user)
