@@ -4,6 +4,7 @@ from authentication.models import CustomUser
 from rest_framework.test import APITestCase
 from typing import Dict, Any 
 
+User = get_user_model()
 
 
 class TestSetup(TestCase):
@@ -14,20 +15,20 @@ class TestSetup(TestCase):
         return super().setUp()
         
     def create_test_user(self, **kwargs: Dict[str, Any]) -> CustomUser:
-        user = get_user_model().objects.create(
+        user = User.objects.create(
             email='kerryonyeogo@gmail.com', first_name='test',
             last_name='test&test', gender='Male', phone_number='+2348102012239',
             address='9 olarenwaju street', city='Ikeja', state='Lagos',
-            country='Nigeria', **kwargs
+            country='NG', **kwargs
         )
         return user
     
     def create_test_superuser(self, **kwargs: Dict[str, Any]) -> CustomUser:
-        user = get_user_model().objects.create_user(
+        user = User.objects.create_user(
             email='kerryonyeogo2@gmail.com', first_name='test',
             last_name='test&test', password="Akpororo1", gender='Male', phone_number='+2348102012239',
             address='9 olarenwaju street', city='Ikeja', state='Lagos',
-            country='Nigeria', is_superuser=True
+            country='NG', is_superuser=True
         )
         return user
         
@@ -46,14 +47,14 @@ class APITestSetup(APITestCase):
         return super().setUp()
     
     def create_test_user(self, **kwargs: Dict[str, Any]) -> CustomUser:
-        user = get_user_model().objects.create_user(
+        user = User.objects.create_user(
             email='kerryonyeogo@gmail.com', first_name='test',
             last_name='test&test', password="Akpororo1", **kwargs
         )
         return user
     
     def create_test_superuser(self, **kwargs: Dict[str, Any]) -> CustomUser:
-        user = get_user_model().objects.create_user(
+        user = User.objects.create_user(
             email='kerryonyeogo2@gmail.com', first_name='test',
             last_name='test&test', password="Akpororo1", is_superuser=True, 
             **kwargs

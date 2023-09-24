@@ -1,5 +1,4 @@
-from datetime import datetime 
-from authentication.models import CustomUser, Vendor
+from authentication.models import CustomUser
 from ..utils.setup import TestSetup
 
 
@@ -17,20 +16,6 @@ class CustomUserModelTestCase(TestSetup):
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_verified)
         
-class VendorModelTestCase(TestSetup):
-    
-    def setUp(self) -> None:
-        self.vendor = Vendor.objects.create(
-                                            user=self.create_test_superuser(), 
-                                            bio="bio",
-                                            date_of_birth=datetime.today().date()
-                                            )
-        return super().setUp()
-    
-    def test_vendor_creation(self):
-        self.assertTrue(isinstance(self.vendor, Vendor))
-        self.assertTrue(self.vendor.user.is_verified)
-        self.assertEqual(self.vendor.bio, 'bio')
         
     
         

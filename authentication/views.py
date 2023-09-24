@@ -11,17 +11,19 @@ from django.core.exceptions import ValidationError
 from rest_framework import exceptions
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.conf import settings
+from .permissions import CustomUserPermissions
 
 # Create your views here.
 
 from .serializers import (
     UserRegistrationSerializer, 
     CustomTokenObtainPairSerializer, 
-    ChangePasswordSerializer,
+    ChangePasswordSerializer
 )
-from utils.renderers import CustomRenderer
+from common.renderers import CustomRenderer
 from utils.helpers import ForgotPasswordRequestToken
 
+User = get_user_model()
 
 class AccountCreateView(generics.CreateAPIView):
     '''
@@ -42,8 +44,8 @@ class ConfirmEmailView(views.APIView):
         
         try: 
             uid = smart_str(urlsafe_base64_decode(uidb64))
-            user = get_user_model().objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, get_user_model().DoesNotExist):
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             return Response({"error": "Invalid user ID"}, status=400)
 
         if default_token_generator.check_token(user, token):
@@ -60,9 +62,10 @@ class ChangePasswordConfirmView(generics.CreateAPIView):
     '''
         API endpoint for confirming change of user passwords
     '''
-    queryset = get_user_model().objects.all()
+    queryset = User.objects.all()
     serializer_class = ChangePasswordSerializer                                                                                                                                                     
     renderer_classes = [CustomRenderer]
+    permission_classes = [CustomUserPermissions]
     
 
     def create(self, request, *args, **kwargs):
@@ -121,3 +124,7 @@ class ForgotPasswordRequestTokenViewSet(ForgotPasswordRequestToken, GenericViewS
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     renderer_classes = [CustomRenderer]
+    
+    
+
+    
