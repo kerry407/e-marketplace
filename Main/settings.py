@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
+import os 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -48,10 +49,13 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_countries',
     'pytest_cov',
+    'oauth2_provider',
+    'social_django',
+    'drf_social_oauth2',
     
     # Local apps
     'authentication',
-    'utils',
+    'vendor'
 ]
 
 MIDDLEWARE = [
@@ -78,6 +82,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -87,17 +93,51 @@ WSGI_APPLICATION = 'Main.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        # manual authentication
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        
+        # oath type authentication
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication', 
+        'drf_social_oauth2.authentication.SocialAuthentication',
     ],
     'DATETIME_FORMAT': "%A %d %B, %Y - %H:%M:%S %p",
+}
+
+AUTHENTICATION_BACKENDS = (
+    # Google  OAuth2
+   'social_core.backends.google.GoogleOAuth2',
+   # drf-social-oauth2
+   'drf_social_oauth2.backends.DjangoOAuth2',
+    # default manual auth
+   'django.contrib.auth.backends.ModelBackend',
+)
+
+
+# Google configuration
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+
+
+# Define SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE to get extra permissions from Google.
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]
+
+ACTIVATE_JWT = True
+
+OAUTH2_PROVIDER = {
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 5,
+    #this is my path, you should add yours
+    'ACCESS_TOKEN_GENERATOR': 'authentication.token_generator.token_generator'
 }
 
 USE_TZ = True 
 
 SIMPLE_JWT = {
     # "ROTATE_REFRESH_TOKENS": True,
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=14),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
 SWAGGER_SETTINGS = {
@@ -141,10 +181,15 @@ CORS_ALLOW_CREDENTIALS = True
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
     }
 }
 
@@ -184,6 +229,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

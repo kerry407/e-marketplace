@@ -1,7 +1,6 @@
 from django.core.mail import EmailMessage 
 from django.conf import settings
 from authentication.models import CustomUser
-import threading
 from rest_framework import exceptions
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -15,11 +14,16 @@ from rest_framework import exceptions
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from django_rest_passwordreset.views import _unicode_ci_compare
-
 from django_rest_passwordreset.models import ResetPasswordToken, clear_expired, get_password_reset_token_expiry_time, \
     get_password_reset_lookup_field
 from django_rest_passwordreset.serializers import EmailSerializer
 from django.dispatch import Signal 
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
+import threading
+from io import BytesIO 
+import sys 
+from PIL import Image
 
 User = get_user_model()
 
@@ -132,3 +136,30 @@ class ForgotPasswordRequestToken(GenericAPIView):
                 forgot_password_token_created.send(sender=self.__class__, instance=self, reset_password_token=token)
         # done
         return Response({'status': 'OK'})
+
+
+def image_upload(image_file):
+    # opening the uploaded image 
+    im = Image.open(image_file)
+    output = BytesIO()
+    
+    # resize or modify the image to fit aspect ratio
+    original_width, original_height = im.size
+    aspect_ratio = round(original_width / original_height)
+    desired_height = 100  # Edit to add your desired height in pixels
+    desired_width = desired_height * aspect_ratio
+    im = im.resize((desired_width, desired_height))  # resize the image
+    
+    # after modification, save it to the output 
+    im.save(output, format='JPEG', quality=90)
+    output.seek(0)
+    
+    # change the imagefield value to be the newley modifed image value
+    image_file = InMemoryUploadedFile(
+                            output, 'ImageField', "%s.jpg" % image_file.name.split('.')[0], 
+                            'image/jpeg', sys.getsizeof(output), None
+                            )
+    
+    return image_file
+    
+    

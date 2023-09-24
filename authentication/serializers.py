@@ -3,9 +3,7 @@ from django.contrib.auth import get_user_model # type: ignore
 from datetime import datetime
 from typing import Dict, Any
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Vendor
-from django_rest_passwordreset.serializers import EmailSerializer
-from rest_framework.validators import ValidationError 
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
@@ -75,11 +73,7 @@ class ChangePasswordSerializer(serializers.Serializer):
     
     
     
-class VendorSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Vendor 
-        fields = "__all__"
+
         
         
     

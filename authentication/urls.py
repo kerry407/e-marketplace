@@ -4,7 +4,8 @@ from .views import (
     ConfirmEmailView,
     CustomTokenObtainPairView,
     ChangePasswordConfirmView,  
-    ForgotPasswordRequestTokenViewSet
+    ForgotPasswordRequestTokenViewSet,
+    # VendorCreateView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
@@ -45,5 +46,6 @@ urlpatterns = [
     path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  
     path('reset-password/confirm/', ChangePasswordConfirmView.as_view(), name='reset-password-confirm'),
-    path('forgot-password/confirm', ResetPasswordConfirmViewSet.as_view({'post': 'create'}), name='forgot-password-confirm')
+    path('forgot-password/confirm', ResetPasswordConfirmViewSet.as_view({'post': 'create'}), name='forgot-password-confirm'),
+    # path('create-vendor/', VendorCreateView.as_view(), name='create-vendor')
 ]
