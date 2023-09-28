@@ -4,7 +4,7 @@ from .models import Vendor
 
 class VendorSerializer(serializers.ModelSerializer):
     profile_img_url = serializers.ImageField(required=False)
-    identity = serializers.ImageField(required=True) 
+    identity = serializers.FileField(required=False) 
     user = serializers.StringRelatedField()
     
     class Meta:
