@@ -25,6 +25,7 @@ from io import BytesIO
 import sys 
 import contextlib 
 from PIL import Image
+from typing import Sequence, Any 
 
 User = get_user_model()
 
@@ -65,12 +66,12 @@ class UserRelatedHelper:
             print(f'Error sending {type} email: {e}')
             
             
-    def remove_duplicate(self, files: list):
+    def remove_duplicate(self, files: Sequence[Any], klass):
         with contextlib.suppress(Exception):
             for file in files:
-                if getattr(self.instance, f'{file}') != file:
+                if getattr(self.instance, f'{file}') != getattr(klass, f'{file}'):
                     old_file = getattr(self.instance, f'{file}')
-                    print(old_file, file)
+                    print(old_file, getattr(klass, f'{file}'))
                     old_file.delete(save=False)
                     
          
