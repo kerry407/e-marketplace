@@ -27,12 +27,19 @@ class Vendor(TrackObjectStateMixin):
         return file_tuple
     
     def save(self, *args, **kwargs):
+        """Optimize Compressing Images and Deletes former files when making an update
+        """
         if self.profile_img_url and self.identity:
             # compress profile_img
-            self.profile_img_url, self.identity = tuple(image_upload([self.profile_img_url, self.identity]))
-
-        """Deletes former profile_img or identity when making an update to profile_img or identity
-        """
+            self.profile_img_url, self.identity = tuple(
+                                                    image_upload(
+                                                        [
+                                                        self.profile_img_url, 
+                                                        self.identity
+                                                        ]
+                                                        )
+                                                    )
+        # remove duplicate files on update
         former = Vendor.objects.get(pk=self.user)
         UserRelatedHelper(former).remove_duplicate(self.get_file_tuple(), self)
                     
@@ -44,7 +51,32 @@ class Vendor(TrackObjectStateMixin):
     
 
 class Store(TrackObjectStateMixin):
-    owner = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='store')
-    about = models.CharField(max_length=250)
+    owner = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='store', db_index=True)
+    name = models.CharField(max_length=100, unique=True)
+    logo = models.ImageField(upload_to='stores/logo/', blank=True, null=True)
+    description = models.CharField(max_length=250)
+    
+    def save(self, *args, **kwargs):
+        """Optimize Compressing Images and Deletes former files when making an update
+        """
+        if self.profile_img_url and self.identity:
+            # compress profile_img
+            self.profile_img_url, self.identity = tuple(
+                                                    image_upload(
+                                                        [
+                                                        self.profile_img_url, 
+                                                        self.identity
+                                                        ]
+                                                        )
+                                                    )
+        # remove duplicate files on update
+        former = Vendor.objects.get(pk=self.user)
+        UserRelatedHelper(former).remove_duplicate(self.get_file_tuple(), self)
+                    
+        super().save(*args, **kwargs)
+        
+        
+    def __str__(self) -> str:
+        return self.name 
     
     
