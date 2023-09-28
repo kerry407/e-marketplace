@@ -23,7 +23,9 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 import threading
 from io import BytesIO 
 import sys 
+import contextlib 
 from PIL import Image
+from typing import Sequence, Any 
 
 User = get_user_model()
 
@@ -62,8 +64,16 @@ class UserRelatedHelper:
             EmailThread(mail_message).start()
         except Exception as e:
             print(f'Error sending {type} email: {e}')
-         
-         
+            
+            
+    def remove_duplicate(self, files: Sequence[Any], klass):
+        with contextlib.suppress(Exception):
+            for file in files:
+                if getattr(self.instance, f'{file}') != getattr(klass, f'{file}'):
+                    old_file = getattr(self.instance, f'{file}')
+                    print(old_file, getattr(klass, f'{file}'))
+                    old_file.delete(save=False)
+                    
          
       
 class ForgotPasswordRequestToken(GenericAPIView):
@@ -138,28 +148,36 @@ class ForgotPasswordRequestToken(GenericAPIView):
         return Response({'status': 'OK'})
 
 
-def image_upload(image_file):
+def image_upload(files: list):
     # opening the uploaded image 
-    im = Image.open(image_file)
-    output = BytesIO()
     
-    # resize or modify the image to fit aspect ratio
-    original_width, original_height = im.size
-    aspect_ratio = round(original_width / original_height)
-    desired_height = 100  # Edit to add your desired height in pixels
-    desired_width = desired_height * aspect_ratio
-    im = im.resize((desired_width, desired_height))  # resize the image
+    for image_file in files:
+        im = Image.open(image_file)
+        output = BytesIO()
+        
+        # resize or modify the image to fit aspect ratio
+        original_width, original_height = im.size
+        aspect_ratio = round(original_width / original_height)
+        desired_height = 100  # Edit to add your desired height in pixels
+        desired_width = desired_height * aspect_ratio
+        im = im.resize((desired_width, desired_height))  # resize the image
+        
+        # after modification, save it to the output 
+        if im.mode in ("RGBA", "P"):
+            im = im.convert("RGB")
+        im.save(output, format='JPEG', quality=90)
+        output.seek(0)
+        
+        # change the imagefield value to be the newley modifed image value
+        image_file = InMemoryUploadedFile(
+                                output, 'ImageField', "%s.jpg" % image_file.name.split('.')[0], 
+                                'image/jpeg', sys.getsizeof(output), None
+                                )
+        yield image_file
+        
+        
+
     
-    # after modification, save it to the output 
-    im.save(output, format='JPEG', quality=90)
-    output.seek(0)
     
-    # change the imagefield value to be the newley modifed image value
-    image_file = InMemoryUploadedFile(
-                            output, 'ImageField', "%s.jpg" % image_file.name.split('.')[0], 
-                            'image/jpeg', sys.getsizeof(output), None
-                            )
-    
-    return image_file
     
     

@@ -10,7 +10,7 @@ urlpatterns = [
     path('<str:pk>/', 
         VendorAPIViewset.as_view(
             {
-            'get':'retreive', 'put':'update', 
+            'get':'retrieve', 'put':'update', 
             'patch':'partial_update', 
             'delete':'destroy'
             }), 
