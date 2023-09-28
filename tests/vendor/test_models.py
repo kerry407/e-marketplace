@@ -14,7 +14,7 @@ class VendorModelTestCase(TestSetup):
                                             )
         return super().setUp()
     
-    def test_vendor_creation(self):
+    def test_vendor_model(self):
         self.assertTrue(isinstance(self.vendor, Vendor))
         self.assertTrue(self.vendor.user.is_verified)
         self.assertEqual(self.vendor.bio, 'bio')
