@@ -24,4 +24,5 @@ class VendorModelTestCase(TestSetup):
     def test_vendor_model(self):
         self.assertTrue(isinstance(self.vendor, Vendor))
         self.assertTrue(self.vendor.user.is_verified)
+        self.assertTrue(self.vendor.user.is_vendor)
         self.assertEqual(self.vendor.bio, 'bio')
