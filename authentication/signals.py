@@ -42,7 +42,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     # render email html
     message = render_to_string('authentication/user_reset_password.html', context)
     helper = UserRelatedHelper(reset_password_token.user)
-    helper.mailer('Confirmation', subject, message)
+    helper.mailer('Reset Password', subject, message)
 
 
 @receiver(forgot_password_token_created)
@@ -60,4 +60,4 @@ def forgot_password_reset_token_created(sender, instance, reset_password_token, 
     # render email html
     message = render_to_string('authentication/user_forgot_password.html', context)
     helper = UserRelatedHelper(reset_password_token.user)
-    helper.mailer('Confirmation', subject, message)
+    helper.mailer('Forgot Password', subject, message)
