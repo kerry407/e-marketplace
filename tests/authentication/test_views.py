@@ -26,8 +26,8 @@ class AuthTestCase(APITestSetup):
         
     def test_login_unverified_user(self):
         login_data = {
-            "email": "kerryonyeogo@gmail.com",
-            "password": "Akpororo1"
+            "email": "test@test.com",
+            "password": "testpassword1"
         }
         res = self.client.post(reverse("authentication:login"), login_data)
         # test to see if the user cannot login due to unverification
@@ -35,7 +35,7 @@ class AuthTestCase(APITestSetup):
         
     def test_login_verified_user(self):
         login_data = {
-            "email": "kerryonyeogo2@gmail.com",
+            "email": "test2@test.com",
             "password": "Akpororo1"
         }
         res = self.client.post(reverse("authentication:login"), login_data)
