@@ -177,7 +177,10 @@ def image_upload(files: list):
         
         
 
+class FileCleanMixin:
     
+    def optimize(self):
+        pass 
     
     
     

@@ -4,17 +4,19 @@ import datetime
 from django.urls import reverse 
 from rest_framework import status 
 from rest_framework_simplejwt.tokens import RefreshToken
+from vendor.serializers import VendorSerializer
 
 class VendorAPITestCase(APITestSetup):
     
     def setUp(self):
-        self.verified_user = self.create_test_user(is_verified=True)
         self.super_user = self.create_test_superuser()
-        self.vendor = Vendor.objects.create(
-                                            user=self.super_user, 
-                                            bio="bio",
-                                            date_of_birth=datetime.datetime.today().date()
-                                            )
+        self.verified_user = self.create_test_verified_user()
+        vendor_serializer = VendorSerializer(data={
+            'bio': 'bio',
+            'date_of_birth': datetime.datetime.today().date()
+        })
+        vendor_serializer.is_valid(raise_exception=True)
+        self.vendor = vendor_serializer.save(user=self.super_user)
         
         refresh = RefreshToken.for_user(self.verified_user)
         access_token = refresh.access_token
@@ -49,12 +51,12 @@ class VendorAPITestCase(APITestSetup):
     
     def test_update_vendor_profile(self):
         # create the vendor profile
-        data = {
-            'user': self.verified_user,
-            'bio': "Phone Vendor",
-            'date_of_birth': datetime.date(year=2000, month=9, day=20),
-        }
-        vendor = Vendor.objects.create(**data)
+        vendor_serializer = VendorSerializer(data={
+            'bio': 'bio',
+            'date_of_birth': datetime.datetime.today().date()
+        })
+        vendor_serializer.is_valid(raise_exception=True)
+        vendor = vendor_serializer.save(user=self.verified_user)
         # update the data
         update_data = {
             'bio': 'Phone Vendor Updated',
@@ -68,21 +70,27 @@ class VendorAPITestCase(APITestSetup):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         
     def test_partial_update_vendor_details(self):
-        data = {
-            'user': self.verified_user,
-            'bio': "Phone Vendor",
-            'date_of_birth': datetime.date(year=2000, month=9, day=20),
-        }
-        vendor = Vendor.objects.create(**data)
+        # create the vendor profile
+        vendor_serializer = VendorSerializer(data={
+            'bio': 'bio',
+            'date_of_birth': datetime.datetime.today().date()
+        })
+        vendor_serializer.is_valid(raise_exception=True)
+        vendor = vendor_serializer.save(user=self.verified_user)
         # update the data
         update_data = {
             'bio': 'Phone Vendor Partial Updated',
         }
         res = self.client.put(path=reverse('vendor-detail', args=[vendor.pk]), data=update_data)
-        print(res.json())
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         
     def test_delete_vendor_profile(self):
-        res = self.client.delete(path=reverse('vendor-detail', args=[self.vendor.pk]))
+        vendor_serializer = VendorSerializer(data={
+            'bio': 'bio',
+            'date_of_birth': datetime.datetime.today().date()
+        })
+        vendor_serializer.is_valid(raise_exception=True)
+        vendor = vendor_serializer.save(user=self.verified_user)
+        res = self.client.delete(path=reverse('vendor-detail', args=[vendor.pk]))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         

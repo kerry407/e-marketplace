@@ -3,14 +3,9 @@ from django.conf import settings
 import contextlib
 from authentication.models import TrackObjectStateMixin
 
-from utils.helpers import image_upload, UserRelatedHelper
+from utils.helpers import UserRelatedHelper
 # Create your models here.
 
-def get_old_object(klass: models.Model, identifier):
-    try:
-        klass.objects.get(pk=identifier)
-    except klass.DoesNotExist:
-        pass 
 
 class Vendor(TrackObjectStateMixin):
     id = None
@@ -39,16 +34,12 @@ class Vendor(TrackObjectStateMixin):
     def save(self, *args, **kwargs):
         """Optimize Compressing Images and Deletes former files when making an update
         """
-        if self.profile_img_url and self.identity:
-            # compress profile_img
-            image_upload(self.populate_image_files())
-       
         # former = get_old_object(Vendor, self.user)
         former = Vendor.objects.filter(pk=self.user)
         if former.exists():
             UserRelatedHelper(former.first()).remove_duplicate(self.populate_file_fields(), self)
                     
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
     
     
     def __str__(self) -> str:
@@ -77,15 +68,11 @@ class Store(TrackObjectStateMixin):
     
     def save(self, *args, **kwargs):
         """Optimize Compressing Images and Deletes former files when making an update
-        """
-        if self.profile_img_url and self.identity:
-            # compress profile_img
-            image_upload(self.populate_image_files())
-            
+        """ 
         # remove duplicate files on update
         former = Store.objects.filter(pk=self.pk)
         if former.exists():
-            UserRelatedHelper(former.first()).remove_duplicate(self.get_file_tuple(), self)
+            UserRelatedHelper(former.first()).remove_duplicate(self.populate_file_fields(), self)
                     
         super().save(*args, **kwargs)
         

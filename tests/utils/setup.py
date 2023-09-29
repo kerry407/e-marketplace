@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from authentication.models import CustomUser
 from rest_framework.test import APITestCase
 from typing import Dict, Any 
+from authentication.serializers import * 
 
 User = get_user_model()
 
@@ -15,20 +16,22 @@ class TestSetup(TestCase):
         return super().setUp()
         
     def create_test_user(self, **kwargs: Dict[str, Any]) -> CustomUser:
-        user = User.objects.create(
-            email='kerryonyeogo@gmail.com', first_name='test',
-            last_name='test&test', gender='Male', phone_number='+2348102012239',
-            address='9 olarenwaju street', city='Ikeja', state='Lagos',
-            country='NG', **kwargs
-        )
+        user_serializer = UserRegistrationSerializer(data={
+            'email': 'test@test.com',
+            'first_name': 'test',
+            'last_name': 'test&test',
+            'gender': 'Male',
+            'password': 'testpassword1',
+            'password2': 'testpassword1'
+        })
+        user_serializer.is_valid(raise_exception=True)
+        user = user_serializer.save()
         return user
     
     def create_test_superuser(self, **kwargs: Dict[str, Any]) -> CustomUser:
-        user = User.objects.create_user(
-            email='kerryonyeogo2@gmail.com', first_name='test',
-            last_name='test&test', password="Akpororo1", gender='Male', phone_number='+2348102012239',
-            address='9 olarenwaju street', city='Ikeja', state='Lagos',
-            country='NG', is_superuser=True
+        user = User.objects.create_superuser(
+            email='test2@test.com', first_name='test',
+            last_name='test&test', password="Akpororo1", 
         )
         return user
         
@@ -47,17 +50,28 @@ class APITestSetup(APITestCase):
         return super().setUp()
     
     def create_test_user(self, **kwargs: Dict[str, Any]) -> CustomUser:
-        user = User.objects.create_user(
-            email='kerryonyeogo@gmail.com', first_name='test',
-            last_name='test&test', password="Akpororo1", **kwargs
-        )
+        user_serializer = UserRegistrationSerializer(data={
+            'email': 'test@test.com',
+            'first_name': 'test',
+            'last_name': 'test&test',
+            'gender': 'Male',
+            'password': 'testpassword1',
+            'password2': 'testpassword1'
+        })
+        user_serializer.is_valid(raise_exception=True)
+        user = user_serializer.save()
         return user
     
+    def create_test_verified_user(self, **kwargs: Dict[str, Any]) -> CustomUser:
+        user = User.objects.create_superuser(
+            email='test3@test.com', first_name='test',
+            last_name='test&test', password="Akpororo1", 
+        )
+        return user
     def create_test_superuser(self, **kwargs: Dict[str, Any]) -> CustomUser:
-        user = User.objects.create_user(
-            email='kerryonyeogo2@gmail.com', first_name='test',
-            last_name='test&test', password="Akpororo1", is_superuser=True, 
-            **kwargs
+        user = User.objects.create_superuser(
+            email='test2@test.com', first_name='test',
+            last_name='test&test', password="Akpororo1", 
         )
         return user
     
