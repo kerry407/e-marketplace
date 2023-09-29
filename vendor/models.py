@@ -3,14 +3,9 @@ from django.conf import settings
 import contextlib
 from authentication.models import TrackObjectStateMixin
 
-from utils.helpers import image_upload, UserRelatedHelper
+from utils.helpers import UserRelatedHelper
 # Create your models here.
 
-def get_old_object(klass: models.Model, identifier):
-    try:
-        klass.objects.get(pk=identifier)
-    except klass.DoesNotExist:
-        pass 
 
 class Vendor(TrackObjectStateMixin):
     id = None
