@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings 
-import contextlib
 from authentication.models import TrackObjectStateMixin
 
 from utils.helpers import UserRelatedHelper
@@ -14,7 +13,7 @@ class Vendor(TrackObjectStateMixin):
     bio = models.TextField(null=True, blank=True)
     profile_img_url = models.ImageField(upload_to='vendors/profile_images/', null=True)
     identity = models.FileField(upload_to='vendors/identities/', null=True)
-    themes = models.ManyToManyField('Theme')
+    themes = models.ManyToManyField('Theme', blank=True)
 
     class Meta:
         ordering = ["last_updated"]
@@ -51,7 +50,7 @@ class Store(TrackObjectStateMixin):
     owner = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='store', db_index=True)
     name = models.CharField(max_length=100, unique=True)
     logo = models.ImageField(upload_to='vendors/stores/logo/', blank=True, null=True)
-    description = models.CharField(max_length=250)
+    description = models.CharField(max_length=250, null=True, blank=True)
     
     
     
