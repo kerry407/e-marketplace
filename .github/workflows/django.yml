@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "kerry-branch" ]
   pull_request:
-    branches: [ "kerry-branch" ]
+    branches: [ "main" ]
 
 jobs:
   build:
