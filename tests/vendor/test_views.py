@@ -28,8 +28,11 @@ class VendorAPITestCase(APITestSetup):
             'bio': "Gadget Vendor",
             'date_of_birth': datetime.date(year=2000, month=9, day=20),
         }
-        res = self.client.post(path=reverse('create-vendor'), data=data)
+        res = self.client.post(path=reverse('create-vendor'), data=data)  
+        user = res.json()['data']['user']
+        vendor = Vendor.objects.get(user=user)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(vendor.user.is_vendor)
         
     def test_vendor_creation_non_unique(self):
         # get authentication
@@ -63,10 +66,12 @@ class VendorAPITestCase(APITestSetup):
             'date_of_birth': datetime.date(year=2002, month=10, day=21)
         }
         res = self.client.put(path=reverse('vendor-detail', args=[vendor.pk]), data=update_data)
+        self.assertTrue(vendor.user.is_vendor)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         
     def test_retrieve_vendor_details(self):
         res = self.client.get(path=reverse('vendor-detail', args=[self.vendor.pk]))
+        self.assertTrue(self.vendor.user.is_vendor)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         
     def test_partial_update_vendor_details(self):
@@ -82,6 +87,7 @@ class VendorAPITestCase(APITestSetup):
             'bio': 'Phone Vendor Partial Updated',
         }
         res = self.client.put(path=reverse('vendor-detail', args=[vendor.pk]), data=update_data)
+        self.assertTrue(vendor.user.is_vendor)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         
     def test_delete_vendor_profile(self):
@@ -92,5 +98,6 @@ class VendorAPITestCase(APITestSetup):
         vendor_serializer.is_valid(raise_exception=True)
         vendor = vendor_serializer.save(user=self.verified_user)
         res = self.client.delete(path=reverse('vendor-detail', args=[vendor.pk]))
+        self.assertTrue(vendor.user.is_vendor)
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         

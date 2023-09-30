@@ -14,6 +14,7 @@ class Vendor(TrackObjectStateMixin):
     bio = models.TextField(null=True, blank=True)
     profile_img_url = models.ImageField(upload_to='vendors/profile_images/', null=True)
     identity = models.FileField(upload_to='vendors/identities/', null=True)
+    themes = models.ManyToManyField('Theme')
 
     class Meta:
         ordering = ["last_updated"]
@@ -53,6 +54,7 @@ class Store(TrackObjectStateMixin):
     description = models.CharField(max_length=250)
     
     
+    
     @classmethod 
     def populate_file_fields(cls) -> tuple:
         file_tuple = tuple(f.name for f in cls._meta.get_fields() \
@@ -81,7 +83,7 @@ class Store(TrackObjectStateMixin):
 
 
 class Theme(TrackObjectStateMixin):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, unique=True)
     primary_color = models.CharField(max_length=7)
     secondary_color = models.CharField(max_length=7)
     background_color = models.CharField(max_length=7)
@@ -92,14 +94,15 @@ class Theme(TrackObjectStateMixin):
     def __str__(self) -> str:
         return self.name
     
-class StoreSettings(TrackObjectStateMixin):
+    
+class StoreSetting(TrackObjectStateMixin):
     """All custom settings associated to a store. vendors will 
        be able to customize ans style their store how they like. 
     """
-    # more fields to come
-    store = models.OneToOneField(Store, on_delete=models.CASCADE, related_name='store_settings')
+    id = None  
+    store = models.OneToOneField(Store, on_delete=models.CASCADE, primary_key=True, related_name='store_settings')
     use_theme = models.BooleanField(default=False)
-    theme = models.OneToOneField(Theme, on_delete=models.PROTECT)
+    theme = models.CharField(max_length=200, null=True, blank=True)
     primary_color = models.CharField(max_length=7, blank=True, null=True)
     secondary_color = models.CharField(max_length=7, blank=True, null=True)
     background_color = models.CharField(max_length=7, blank=True, null=True)
@@ -107,10 +110,9 @@ class StoreSettings(TrackObjectStateMixin):
     link_color = models.CharField(max_length=7, blank=True, null=True)
     button_color = models.CharField(max_length=7, blank=True, null=True)
     banner_image = models.ImageField(upload_to='vendors/', blank=True, null=True)
-    about_us = models.TextField(blank=True, default=store.description)
-    contact_email = models.EmailField(blank=True)
-    phone_number = models.CharField(max_length=20, blank=True)
-    social_media = models.JSONField(default=dict)
+    contact_email = models.EmailField(blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    social_media = models.JSONField(default=dict, null=True)
     
     def __str__(self) -> str:
         return f"settings for {self.store.name}"
